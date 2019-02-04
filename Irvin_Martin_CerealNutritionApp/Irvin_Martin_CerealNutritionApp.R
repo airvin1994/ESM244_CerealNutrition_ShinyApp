@@ -1,47 +1,108 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(tidyverse)
+library(shinythemes)
+
+?plotOutput
+?mainPanel
+?textOutput
+?shinytheme
+?renderText
+?filter
+?dataTableOutput
+?renderDataTable
+?renderTable
+?paste
+
+cereals <- read_csv("cereal_dataset.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+   theme = shinytheme("cosmo"),
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("How Healthy is Your Cereal?"),
    
-   # Sidebar with a slider input for number of bins 
-   sidebarLayout(
-      sidebarPanel(
-         sliderInput("bins",
-                     "Number of bins:",
-                     min = 1,
-                     max = 50,
-                     value = 30)
-      ),
-      
-      # Show a plot of the generated distribution
-      mainPanel(
-         plotOutput("distPlot")
-      )
+   navbarPage("Alex Irvin and Caitlin Martin",
+              
+              tabPanel("Summary",
+                       h1("Summary"),
+                       h2("What does our app do?"),
+                       p("Our app visualizes the relationship between different cereals, their nutritional content, and how different nutrients affect cereal consumer ratings. The app uses dietary characteristics and nutritional information associated with 77 different cereal products."),
+                       h1("How do I use this app?"),
+                       p("Select one of the tabs at the top of the page...")
+                       
+              ),
+              
+              tabPanel("Nutrition Breakdown",
+                       
+                       # Sidebar with a slider input for number of bins 
+                       sidebarLayout(
+                          sidebarPanel(
+                             selectInput("cereal", 
+                                         "Select a cereal to display:",
+                                         choices = cereals$name)
+                          ),
+                          
+                          # Show a plot of the generated distribution
+                          mainPanel(
+                             htmlOutput("nutrition")
+                          )
+                       )),
+             
+              
+              tabPanel("Statistics",
+                       
+                       # Sidebar with a slider input for number of bins 
+                       sidebarLayout(
+                          sidebarPanel(
+                             
+                             radioButtons("scattercolor", 
+                                          "Select scatterplot color:",
+                                          choices = c("red","blue","gray50"))
+                          ),
+                          
+                          # Show cereal nutrition information
+                          mainPanel(
+                             plotOutput("scatter")
+                          )
+                       ))
+              
    )
+   
 )
+
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
    
-   output$distPlot <- renderPlot({
-      # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2] 
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
+   #renderDataTable(filter(cereals, name == input$cereal))
+   output$nutrition <- renderText({paste("<font color=\"#000000\"><b><br>",              #change color to black
+                                         "Calories",                                     #title of section
+                                         "<font color=\"#FF0000\"><b><br>",              #change color to red
+                                         filter(cereals, name == input$cereal)$calories, #filter specific cell
+                                         "<br>",                                         #line break
+                                         
+                                         "<font color=\"#000000\"><b><br>", 
+                                         "Fat", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$fat,
+                                         "<br>",
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Sugar", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$sugars
+                                         
+                                 )})
       
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
+   
+   output$scatter <- renderPlot({
+      
+      ggplot(faithful, aes(x = waiting, y = eruptions)) +
+         geom_point(color = input$scattercolor) +
+         geom_smooth(method = "lm", se = FALSE)
+      
    })
 }
 
