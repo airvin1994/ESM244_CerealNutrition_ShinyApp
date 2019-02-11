@@ -14,6 +14,9 @@ library(shinythemes)
 ?paste
 
 cereals <- read_csv("cereal_dataset.csv")
+cereals[(4:12)] <- cereals[(4:12)] / cereals[["cups"]] # Normalize all variables to serving size of 1 cup
+cereals[] <- lapply(cereals, function(x) if (is.numeric(x)) round(x, 2) else x)
+cereals$mfr <- replace(cereals$mfr, cereals$mfr %in% c("A","G","K","N","P","Q","R"), c("American Home Food Products","General Mills", "Kelloggs","Nabisco","Post","Quaker Oats","Ralston Purina"))
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -77,23 +80,78 @@ ui <- fluidPage(
 server <- function(input, output) {
    
    #renderDataTable(filter(cereals, name == input$cereal))
-   output$nutrition <- renderText({paste("<font color=\"#000000\"><b><br>",              #change color to black
-                                         "Calories",                                     #title of section
-                                         "<font color=\"#FF0000\"><b><br>",              #change color to red
+   output$nutrition <- renderText({paste( "<font size = 5>",                     #change font size
+                                          "<font color=\"#000000\"><b><br>",       #change color to black
+                                         "Calories (per 1 cup serving)",         #title of section
+                                         "<font color=\"#FF0000\"><b><br>",             #change color to red
                                          filter(cereals, name == input$cereal)$calories, #filter specific cell
                                          "<br>",                                         #line break
                                          
                                          "<font color=\"#000000\"><b><br>", 
-                                         "Fat", 
+                                         "Fat (g)", 
                                          "<font color=\"#1CCC46\"><b><br>",
                                          filter(cereals, name == input$cereal)$fat,
                                          "<br>",
                                          
                                          "<font color=\"#000000\"><b><br>",
-                                         "Sugar", 
+                                         "Sugar (g)", 
                                          "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$sugars
+                                         filter(cereals, name == input$cereal)$sugars,
+                                         "<br>",
                                          
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Sodium (mg)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$sodium, 
+                                         "<br>",
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Fiber (g)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$fiber, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Vitamins & Minerals (typical percentage of FDA recommended consumption)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$vitamins, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Potassium (mg)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$potass, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Protein (g)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$protein, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Complex Carbohydrates (g)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$carbo, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Consumer Rating", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$rating, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Shelf Display Location (1, 2, or 3, counting from the floor)", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$shelf, 
+                                         "<br>", 
+                                         
+                                         "<font color=\"#000000\"><b><br>",
+                                         "Manufacturer", 
+                                         "<font color=\"#1CCC46\"><b><br>",
+                                         filter(cereals, name == input$cereal)$mfr, 
+                                         "<br>"
                                  )})
       
    
