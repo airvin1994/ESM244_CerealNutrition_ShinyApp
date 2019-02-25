@@ -38,17 +38,19 @@ ui <- fluidPage(
               
               tabPanel("Nutrition Breakdown",
                        
-                       # Sidebar with a slider input for number of bins 
+                       # Sidebar with a slider input for number of bins
                        sidebarLayout(
                           sidebarPanel(
                              selectInput("cereal", 
                                          "Select a cereal to display:",
-                                         choices = cereals$name)
+                                         choices = cereals$name),
+                             htmlOutput("baseline")
                           ),
                           
                           # Show a plot of the generated distribution
                           mainPanel(
-                             htmlOutput("nutrition")
+                           htmlOutput("nutrition"),
+                           htmlOutput("nutrition_2")
                           )
                        )),
              
@@ -59,9 +61,12 @@ ui <- fluidPage(
                        sidebarLayout(
                           sidebarPanel(
                              
+                             selectInput("nutrient",
+                                         "Select a nutrient to graph",
+                                         choices = c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrate","Sugars","Potassium","Vitamins")),
                              radioButtons("scattercolor", 
-                                          "Select scatterplot color:",
-                                          choices = c("red","blue","gray50"))
+                                          "Select a manufacturer:",
+                                          choices = unique(cereals$mfr))
                           ),
                           
                           # Show cereal nutrition information
@@ -69,6 +74,7 @@ ui <- fluidPage(
                              plotOutput("scatter")
                           )
                        ))
+              
               
    )
    
@@ -78,7 +84,37 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-   
+
+   output$baseline <- renderText({paste("<font size = 4>",
+                                        "<b>Baseline healthy cereal:<b>",
+                                        "<font size = 2>",
+                                        "<br><br>",
+                                        "Calories: 100",
+                                        "<br><br>",
+                                        "Fat (g): 0",
+                                        "<br><br>",
+                                        "Sugar (g): 0",
+                                        "<br><br>",
+                                        "Sodium (mg): 280",
+                                        "<br><br>",
+                                        "Fiber (g): 28",
+                                        "<br><br>",
+                                        "Vitamins & Minerals: 50%",
+                                        "<br><br>",
+                                        "Potassium (mg): 660",
+                                        "<br><br>",
+                                        "Protein (g): 4",
+                                        "<br><br>",
+                                        "Complex Carbohydrates (g): 16",
+                                        "<br><br>",
+                                        "Nutrition Rating: 93.70",
+                                        "<br><br>",
+                                        "Shelf Display Location: 3",
+                                        "<br><br>",
+                                        "Manufacturer: Nabisco"
+                                        
+                                        
+                                        )})
    #renderDataTable(filter(cereals, name == input$cereal))
    output$nutrition <- renderText({paste( "<font size = 5>",                     #change font size
                                           "<font color=\"#000000\"><b><br>",       #change color to black
@@ -136,7 +172,7 @@ server <- function(input, output) {
                                          "<br>", 
                                          
                                          "<font color=\"#000000\"><b><br>",
-                                         "Consumer Rating", 
+                                         "Nutrition Rating", 
                                          "<font color=\"#1CCC46\"><b><br>",
                                          filter(cereals, name == input$cereal)$rating, 
                                          "<br>", 
@@ -153,6 +189,7 @@ server <- function(input, output) {
                                          filter(cereals, name == input$cereal)$mfr, 
                                          "<br>"
                                  )})
+   output$nutrition_2 <- renderText({paste("test")})
       
    
    output$scatter <- renderPlot({
