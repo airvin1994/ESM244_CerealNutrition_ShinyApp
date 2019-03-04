@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(shinythemes)
+library(ggbiplot)
 
 ?plotOutput
 ?mainPanel
@@ -13,10 +14,33 @@ library(shinythemes)
 ?renderTable
 ?paste
 
-cereals <- read_csv("cereal_dataset.csv")
+cereals <- read_csv("cereal_dataset.csv") %>% 
+  filter(potass > 0 & carbo > 0 & sugars > 0) #remove any negative values
 cereals[(4:12)] <- cereals[(4:12)] / cereals[["cups"]] # Normalize all variables to serving size of 1 cup
 cereals[] <- lapply(cereals, function(x) if (is.numeric(x)) round(x, 2) else x)
 cereals$mfr <- replace(cereals$mfr, cereals$mfr %in% c("A","G","K","N","P","Q","R"), c("American Home Food Products","General Mills", "Kelloggs","Nabisco","Post","Quaker Oats","Ralston Purina"))
+
+#Linear Model
+cereals$mfr <- as.factor(cereals$mfr)
+cereals$shelf <- as.factor(cereals$shelf)
+cereal_lm <- lm(rating ~ calories + protein + fat + sodium + fiber + carbo + sugars + potass +vitamins +shelf + mfr, data = cereals)
+
+#PCA
+cereal_gm <- cereals %>% 
+  filter(mfr == "General Mills")
+cereal_remove <- cereal_gm %>% 
+  select(-c(shelf, weight, cups, mfr, type)) %>% #removed columns for PCA analysis b/c not numeric values
+        column_to_rownames('name') #change the name to the row name
+cereal_pca <- prcomp(cereal_remove, scale = TRUE)
+
+#Graph PCA
+ggbiplot(cereal_pca, labels = cereal_gm$name) #PCA for just General Mills #checkbox group, so you can choose how many manufacturers you want to include
+
+#Tab 4 graphs
+  ggplot(cereals) +
+  geom_point(aes(x = calories, y = rating)) +
+               geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) 
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -55,30 +79,40 @@ ui <- fluidPage(
                        )),
              
               
-              tabPanel("Statistics",
+              tabPanel("Principle Components Analysis (PCA)",
                        
                        # Sidebar with a slider input for number of bins 
                        sidebarLayout(
                           sidebarPanel(
-                             
-                             selectInput("nutrient",
-                                         "Select a nutrient to graph",
-                                         choices = c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrate","Sugars","Potassium","Vitamins")),
-                             radioButtons("scattercolor", 
+                             #check boxes to show manufacturer in PCA
+                             checkboxGroupInput("mfr", 
                                           "Select a manufacturer:",
-                                          choices = unique(cereals$mfr))
+                                          choices = unique(cereals$mfr)) 
                           ),
                           
                           # Show cereal nutrition information
                           mainPanel(
                              plotOutput("scatter")
                           )
-                       ))
+                       )),
               
               
+              #Tab 4 will only have radio buttons
+              tabPanel("Other Graph Thing",
+                       sidebarLayout(
+                         sidebarPanel(
+                          selectInput("nutrient",
+                          "Select a nutrient to graph",
+                          choices = c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrate","Sugars","Potassium","Vitamins"))
+                         ),
+                         # Show cereal nutrition information
+                         mainPanel(
+                           plotOutput("scatter")
+                           )
+                         )
+                       )
+              )
    )
-   
-)
 
 
 
@@ -194,9 +228,16 @@ server <- function(input, output) {
    
    output$scatter <- renderPlot({
       
-      ggplot(faithful, aes(x = waiting, y = eruptions)) +
-         geom_point(color = input$scattercolor) +
-         geom_smooth(method = "lm", se = FALSE)
+     #PCA model and graph
+     cereal_gm <- cereals %>% 
+       filter(mfr == "General Mills")
+     cereal_remove <- cereal_gm %>% 
+       select(-c(shelf, weight, cups, mfr, type)) %>% #removed columns for PCA analysis b/c not numeric values
+       column_to_rownames('name') #change the name to the row name
+     cereal_pca <- prcomp(cereal_remove, scale = TRUE)
+     
+     #Graph PCA
+     ggbiplot(cereal_pca, labels = cereal_gm$name)
       
    })
 }
