@@ -39,6 +39,7 @@ ggbiplot(cereal_pca, labels = cereal_gm$name) #PCA for just General Mills #check
 #Tab 4 graphs
   ggplot(cereals) +
   geom_point(aes(x = calories, y = rating)) +
+    theme_classic()+
                geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) 
 
 
@@ -98,16 +99,23 @@ ui <- fluidPage(
               
               
               #Tab 4 will only have radio buttons
-              tabPanel("Other Graph Thing",
+              tabPanel("Nutrients & Rating",
                        sidebarLayout(
                          sidebarPanel(
                           selectInput("nutrient",
                           "Select a nutrient to graph",
-                          choices = c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrate","Sugars","Potassium","Vitamins"))
+                          choices = c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrate","Sugars","Potassium","Vitamins")
+                          
+                          ),
+                          
+                         radioButtons("mfr", 
+                                      "Select a manufacturer:",
+                                      choices = unique(cereals$mfr)
+                         )
                          ),
                          # Show cereal nutrition information
                          mainPanel(
-                           plotOutput("scatter")
+                           plotOutput("plot1")
                            )
                          )
                        )
@@ -239,6 +247,22 @@ server <- function(input, output) {
      #Graph PCA
      ggbiplot(cereal_pca, labels = cereal_gm$name)
       
+   })
+   
+   
+   #Graph Tab 4
+   output$plot1 <- renderPlot({
+     ggplot(cereals) +
+       geom_point(aes(x = calories, y = rating)) +
+       theme_classic()+
+       geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) +
+       theme(panel.grid.major=element_blank()) +
+       theme(plot.caption = element_text(hjust = 0.5))+
+       xlab ("\nCalories") +
+       ylab ('\nCereal Nutrition Rating')+
+       theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+       scale_x_continuous(expand = c(0.0, 0.0), breaks = c(seq(0, 450, by = 50)), limits = c(0, 450))+
+       scale_y_continuous(expand = c(0.0, 0.0), breaks = c(seq(0, 75, by = 10)), limits = c(0, 75))
    })
 }
 
