@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(shinythemes)
 library(ggbiplot)
+library(ggrepel)
 
 ?plotOutput
 ?mainPanel
@@ -253,9 +254,10 @@ server <- function(input, output) {
    #Graph Tab 4
    output$plot1 <- renderPlot({
      ggplot(cereals) +
-       geom_point(aes(x = calories, y = rating)) +
+       geom_point(aes(x = calories, y = rating), color='darkblue') +
        theme_classic()+
-       geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) +
+       geom_text_repel(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1)+
+       #geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) +
        theme(panel.grid.major=element_blank()) +
        theme(plot.caption = element_text(hjust = 0.5))+
        xlab ("\nCalories") +
