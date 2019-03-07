@@ -4,19 +4,8 @@ library(shinythemes)
 library(ggbiplot)
 library(ggrepel)
 
-?plotOutput
-?mainPanel
-?textOutput
-?shinytheme
-?renderText
-?filter
-?dataTableOutput
-?renderDataTable
-?renderTable
-?paste
-
 cereals <- read_csv("cereal_dataset.csv") %>% 
-  filter(potass > 0 & carbo > 0 & sugars > 0) #remove any negative values
+  filter(potass >= 0 & carbo >= 0 & sugars >= 0) #remove any negative values
 cereals[(4:12)] <- cereals[(4:12)] / cereals[["cups"]] # Normalize all variables to serving size of 1 cup
 cereals[] <- lapply(cereals, function(x) if (is.numeric(x)) round(x, 2) else x)
 cereals$mfr <- replace(cereals$mfr, cereals$mfr %in% c("A","G","K","N","P","Q","R"), c("American Home Food Products","General Mills", "Kelloggs","Nabisco","Post","Quaker Oats","Ralston Purina"))
@@ -75,8 +64,7 @@ ui <- fluidPage(
                           
                           # Show a plot of the generated distribution
                           mainPanel(
-                           htmlOutput("nutrition"),
-                           htmlOutput("nutrition_2")
+                           htmlOutput("nutrition")
                           )
                        )),
              
@@ -94,7 +82,7 @@ ui <- fluidPage(
                           
                           # Show cereal nutrition information
                           mainPanel(
-                             plotOutput("scatter")
+                             plotOutput("pca")
                           )
                        )),
               
@@ -125,128 +113,149 @@ ui <- fluidPage(
 
 
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
-
-   output$baseline <- renderText({paste("<font size = 4>",
-                                        "<b>Baseline healthy cereal:<b>",
-                                        "<font size = 2>",
-                                        "<br><br>",
-                                        "Calories: 100",
-                                        "<br><br>",
-                                        "Fat (g): 0",
-                                        "<br><br>",
-                                        "Sugar (g): 0",
-                                        "<br><br>",
-                                        "Sodium (mg): 280",
-                                        "<br><br>",
-                                        "Fiber (g): 28",
-                                        "<br><br>",
-                                        "Vitamins & Minerals: 50%",
-                                        "<br><br>",
-                                        "Potassium (mg): 660",
-                                        "<br><br>",
-                                        "Protein (g): 4",
-                                        "<br><br>",
-                                        "Complex Carbohydrates (g): 16",
-                                        "<br><br>",
-                                        "Nutrition Rating: 93.70",
-                                        "<br><br>",
-                                        "Shelf Display Location: 3",
-                                        "<br><br>",
-                                        "Manufacturer: Nabisco"
-                                        
-                                        
-                                        )})
-   #renderDataTable(filter(cereals, name == input$cereal))
-   output$nutrition <- renderText({paste( "<font size = 5>",                     #change font size
-                                          "<font color=\"#000000\"><b><br>",       #change color to black
-                                         "Calories (per 1 cup serving)",         #title of section
-                                         "<font color=\"#FF0000\"><b><br>",             #change color to red
-                                         filter(cereals, name == input$cereal)$calories, #filter specific cell
-                                         "<br>",                                         #line break
-                                         
-                                         "<font color=\"#000000\"><b><br>", 
-                                         "Fat (g)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$fat,
-                                         "<br>",
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Sugar (g)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$sugars,
-                                         "<br>",
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Sodium (mg)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$sodium, 
-                                         "<br>",
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Fiber (g)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$fiber, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Vitamins & Minerals (typical percentage of FDA recommended consumption)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$vitamins, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Potassium (mg)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$potass, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Protein (g)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$protein, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Complex Carbohydrates (g)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$carbo, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Nutrition Rating", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$rating, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Shelf Display Location (1, 2, or 3, counting from the floor)", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$shelf, 
-                                         "<br>", 
-                                         
-                                         "<font color=\"#000000\"><b><br>",
-                                         "Manufacturer", 
-                                         "<font color=\"#1CCC46\"><b><br>",
-                                         filter(cereals, name == input$cereal)$mfr, 
-                                         "<br>"
-                                 )})
-   output$nutrition_2 <- renderText({paste("test")})
-      
    
-   output$scatter <- renderPlot({
+   #Vector with just the baseline cereal information
+   baseline_cereal <- filter(cereals, name == "All-Bran with Extra Fiber")
+   
+   #Output for baseline cereal nutrition info
+   output$baseline <- renderText({
+      paste("<font size = 4>",
+            "<b>Baseline healthy cereal:<b>",
+            "<font size = 2>",
+            "<br><br>",
+            paste("Calories: ", baseline_cereal$calories),
+            "<br><br>",
+            paste("Fat (g): ", baseline_cereal$fat),
+            "<br><br>",
+            paste("Sugar (g): ", baseline_cereal$sugars),
+            "<br><br>",
+            paste("Sodium (mg): ", baseline_cereal$sodium),
+            "<br><br>",
+            paste("Fiber (g): ", baseline_cereal$fiber),
+            "<br><br>",
+            paste("Vitamins and Minerals: ", baseline_cereal$vitamins),
+            "<br><br>",
+            paste("Potassium (mg): ", baseline_cereal$potass),
+            "<br><br>",
+            paste("Protein (g): ", baseline_cereal$protein),
+            "<br><br>",
+            paste("Carbohydrates (g): ", baseline_cereal$carbo),
+            "<br><br>",
+            paste("Nutrition Rating: ", baseline_cereal$rating),
+            "<br><br>",
+            paste("Shelf Display Location: ", baseline_cereal$shelf),
+            "<br><br>",
+            paste("Manufacturer: ", baseline_cereal$mfr)
+            )})
+   
+   
+   #Output for selected cereal nutrition info
+   output$nutrition <- renderText({
       
-     #PCA model and graph
-     cereal_gm <- cereals %>% 
-       filter(mfr == "General Mills")
-     cereal_remove <- cereal_gm %>% 
-       select(-c(shelf, weight, cups, mfr, type)) %>% #removed columns for PCA analysis b/c not numeric values
-       column_to_rownames('name') #change the name to the row name
-     cereal_pca <- prcomp(cereal_remove, scale = TRUE)
+      #Set color based on selection
+      #Green = #008000	
+      #Red = #FF0000
+      #Black = #000000
+      
+      selected_cereal <- filter(cereals, name == input$cereal)
+      color_vector <- vector()
+      
+      for (i in 4:length(selected_cereal))
+      {
+         color_vector <- c(color_vector, ifelse(as.numeric(selected_cereal[1,i]) > as.numeric(baseline_cereal[1,i]),"FF0000\\","008000\\"))
+      }
+      
+      #Print out nutrition info
+      paste( "<font size = 5>", #change font size
+            "<font color=\"#000000\"><b><br>",                     #change color to black
+            "Calories (per 1 cup serving)",                        #title of section
+            paste0("<font color=\\",color_vector[1],"><b><br>"),  #change color to red
+            filter(cereals, name == input$cereal)$calories,        #filter specific cell
+            "<br>",                                                #line break
+                                         
+            "<font color=\"#000000\"><b><br>", 
+            "Fat (g)", 
+            paste0("<font color=\\",color_vector[3],"><b><br>"),
+            filter(cereals, name == input$cereal)$fat,
+            "<br>",
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Sugar (g)", 
+            paste0("<font color=\\",color_vector[7],"><b><br>"),
+            filter(cereals, name == input$cereal)$sugars,
+            "<br>",
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Sodium (mg)", 
+            paste0("<font color=\\",color_vector[4],"><b><br>"),
+            filter(cereals, name == input$cereal)$sodium, 
+            "<br>",
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Fiber (g)", 
+            paste0("<font color=\\",color_vector[5],"><b><br>"),
+            filter(cereals, name == input$cereal)$fiber, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Vitamins & Minerals (typical percentage of FDA recommended consumption)", 
+            paste0("<font color=\\",color_vector[9],"><b><br>"),
+            filter(cereals, name == input$cereal)$vitamins, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Potassium (mg)", 
+            paste0("<font color=\\",color_vector[8],"><b><br>"),
+            filter(cereals, name == input$cereal)$potass, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Protein (g)", 
+            paste0("<font color=\\",color_vector[2],"><b><br>"),
+            filter(cereals, name == input$cereal)$protein, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Complex Carbohydrates (g)", 
+            paste0("<font color=\\",color_vector[6],"><b><br>"),
+            filter(cereals, name == input$cereal)$carbo, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Nutrition Rating", 
+            paste0("<font color=\\",color_vector[13],"><b><br>"),
+            filter(cereals, name == input$cereal)$rating, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Shelf Display Location (1, 2, or 3, counting from the floor)", 
+            paste0("<font color=\\",color_vector[10],"><b><br>"),
+            filter(cereals, name == input$cereal)$shelf, 
+            "<br>", 
+                                         
+            "<font color=\"#000000\"><b><br>",
+            "Manufacturer", 
+            "<font color=\"#008000\"><b><br>",
+            filter(cereals, name == input$cereal)$mfr, 
+            "<br>"
+            )})
+   
+   
+   output$pca <- renderPlot({
+      
+      #PCA model and graph
+      cereal_gm <- cereals %>%
+         subset(mfr %in% input$mfr) #filter by manufacturer
+      cereal_remove <- cereal_gm %>% 
+         select(-c(shelf, weight, cups, mfr, type)) %>% #removed columns for PCA analysis b/c not numeric values
+         column_to_rownames('name') #change the name to the row name
+      cereal_pca <- prcomp(cereal_remove, scale = TRUE)
+   
      
-     #Graph PCA
-     ggbiplot(cereal_pca, labels = cereal_gm$name)
+      #Graph PCA
+      ggbiplot(cereal_pca, labels = cereal_gm$name) + theme_classic()
       
    })
    
