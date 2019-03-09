@@ -38,28 +38,30 @@ ui <- fluidPage(
    theme = shinytheme("flatly"),
    
    # Application title
-   titlePanel("How Healthy is Your Cereal?"),
+   titlePanel(strong("How Healthy is Your Cereal?")),
    
-   navbarPage("Alex Irvin and Caitlin Martin",
+   navbarPage(em("Alex Irvin and Caitlin Martin"),
               
               tabPanel("Summary",
-                       #h1("Summary"),
+                       mainPanel(
+                         img(src = "spoon.jpg", height = 350, width = 600, align = "center"),
+                         
                        h2("What does the app do?"),
                        p("
-                         This app visualizes nutritional content of different cereal brands and examines how different nutrients impact cereal nutrition rating. The app uses dietary characteristics and nutritional information associated with 68 different cereal products. 
+                         This app visualizes nutritional content of different cereal brands and examines how different nutrients impact cereal nutrition rating. The app uses dietary characteristics and nutritional information associated with 68 different cereal products.", 
                          
-                         Using  principle components analysis and multiple linear regression, the app identifies correlation between nutritional variables and shows how specific variables influence nutrition ratings."),
+                        "Using  principle components analysis and multiple linear regression, the app identifies correlation between nutritional variables and shows how specific variables influence nutrition ratings."),
                        h2("How do I use this app?"),
-                       p("Begin by selecting one of the tabs at the top of the page. Each tab shows a different visualization of cereal nutritional variables. Under Nutrition Breakdown, the user can see how the nutritional content of his or her favorite cereal brand compares to the recommended daily nutritional intake. 
+                       p("Begin by selecting one of the tabs at the top of the page. Each tab shows a different visualization of cereal nutritional variables. Under", span("Nutrition Breakdown", style = "color:darkblue") , "the user can see how the nutritional content of his or her favorite cereal brand compares to the recommended daily nutritional intake. 
                          
-                        Under Principal Components Analysis (PCA), the user can select different cereal manufacturers and see how the nutritional variables of their cereal brands are related to one another. 
+                        Under", span("Principal Components Analysis (PCA)", style = "color:darkblue"), "the user can select different cereal manufacturers and see how the nutritional variables of their cereal brands are related to one another. 
 
-                        \nUnder Nutrients & Rating, the user can select a nutrient to graph and see how that nutrient influences the overall cereal nutrition rating."),
+                        Under", span("Nutrients & Rating", style = "color:darkblue"), " , the user can select a nutrient to graph and see how that nutrient influences the overall cereal nutrition rating."),
                        h3("Data Source"),
                        p("The dataset was found on Kaggle, and was compiled by James R. Eagan, as Associate Professor at Telecom ParisTech. The dataset was gathered and cleaned by Petra Isenberg, Pierre Dragicevic, and Yvonne Jansen. There are 16 variables in the dataset and 68 observations for cereal products. All variables were normalized to the unit of 1 cup of cereal. 
 
                          Nutrition ratings were based off Consumer Reports. Larger values are associated with higher nutrient content.")
-                       
+                       )      
               ),
               
               tabPanel("Nutrition Breakdown",
