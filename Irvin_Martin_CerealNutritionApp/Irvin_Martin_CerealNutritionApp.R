@@ -20,12 +20,12 @@ summary(cereal_lm)
 finalized_statements <- c(
    "Cereal rating is significantly predicted by calories (p < 0.001), \n with each additional calorie reducing the overall rating of a cereal by -0.22, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05).",
    "Cereal rating is significantly predicted by protein (p < 0.001), \n with each additional gram of protein increasing the overall rating of a cereal by 3.6, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05).",
-   "There is no significant connection between cereal rating \n and grams of fat (p = 0.48, F(17,56) = 69.34, alpha = 0.05).",
+   "Fat (g) does not significantly predict cereal rating (p = 0.48, F(17,56) = 69.34, alpha = 0.05).",
    "Cereal rating is significantly predicted by sodium (p < 0.001), \n with each additional mg of sodium decreasing the overall rating of a cereal by -0.04, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05).",
    "Cereal rating is significantly predicted by fiber (p < 0.001), \n with each additional gram of fiber increasing the overall rating of a cereal by 1.7, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05).",
    "Cereal rating is significantly predicted by carbohydrates (p < 0.001), \n with each additional gram of carbohydrates increasing the overall rating of a cereal by 1.3, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05).",
-   "There is no significant connection between cereal rating \n and grams of sugar (p = 0.57, F(17,56) = 69.34, alpha = 0.05).",
-   "There is no significant connection between cereal rating \n and mg of potassium (p = 0.24, F(17,56) = 69.34, alpha = 0.05).",
+   "Sugar (g) does not significantly predict cereal rating (p = 0.57, F(17,56) = 69.34, alpha = 0.05).",
+   "Potassium (mg) does not significantly predict cereal rating  (p = 0.24, F(17,56) = 69.34, alpha = 0.05).",
    "Cereal rating is significantly predicted by vitamin percentage (p < 0.001), \n with each additional percentage point reducing the overall rating of a cereal by -0.08, \n assuming all else is equal between two cereals (F(17,56) = 69.34, alpha = 0.05)."
 )
 
@@ -78,27 +78,7 @@ ui <- fluidPage(
                            htmlOutput("nutrition")
                           )
                        )),
-             
               
-              tabPanel("Principle Components Analysis (PCA)",
-                       
-                       # Sidebar with a slider input for number of bins 
-                       sidebarLayout(
-                          sidebarPanel(
-                             #check boxes to show manufacturer in PCA
-                             radioButtons("mfr", 
-                                          "Select a manufacturer:",
-                                          choices = unique(cereals$mfr)) 
-                          ),
-                          
-                          # Show cereal nutrition information
-                          mainPanel(
-                             plotOutput("pca", width = "100%")
-                          )
-                       )),
-              
-              
-              #Tab 4 will only have radio buttons
               tabPanel("Nutrients & Rating",
                        sidebarLayout(
                          sidebarPanel(
@@ -118,7 +98,25 @@ ui <- fluidPage(
                            plotOutput("modelPlot")
                            )
                          )
-                       )
+                       ),
+              
+              
+              tabPanel("Principle Components Analysis (PCA)",
+                       
+                       # Sidebar with a slider input for number of bins 
+                       sidebarLayout(
+                         sidebarPanel(
+                           #check boxes to show manufacturer in PCA
+                           radioButtons("mfr", 
+                                        "Select a manufacturer:",
+                                        choices = unique(cereals$mfr)) 
+                         ),
+                         
+                         # Show cereal nutrition information
+                         mainPanel(
+                           plotOutput("pca", width = "100%")
+                         )
+                       ))
               )
    )
 
@@ -298,6 +296,7 @@ server <- function(input, output) {
       
      ggplot(cereals_by_mfr) +
        geom_point(aes_string(x = input$nutrient, y = "Rating", color = "mfr"), size = 3) +
+       scale_color_brewer( palette = "Dark2") +
        theme_classic() +
        geom_text_repel(aes_string(label = "Name", x = input$nutrient, y = "Rating"), hjust = 0.2, vjust = 1) +
        #geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) +
@@ -313,7 +312,9 @@ server <- function(input, output) {
        labs(color='Manufacturer') +
        theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
        labs(caption = paste("\n",finalized_statements[input$nutrient])) +
-       ggtitle(paste("Rating vs.", input$nutrient))
+       ggtitle(paste("Rating vs.", input$nutrient)) 
+       #scale_x_continuous(expand = c(0, 0)) +
+     # scale_y_continuous(expand = c(0, 0)) 
      
    }, width = 900, height = 700)
 }
