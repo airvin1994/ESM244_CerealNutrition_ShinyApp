@@ -50,13 +50,13 @@ ui <- fluidPage(
                          
                         "Using  principle components analysis and multiple linear regression, the app identifies correlation between nutritional variables and shows how specific variables influence nutrition ratings."),
                        h2("How do I use this app?"),
-                       p("Begin by selecting one of the tabs at the top of the page. Each tab shows a different visualization of cereal nutritional variables. Under", span("Nutrition Breakdown", style = "color:darkblue") , "the user can see how the nutritional content of his or her favorite cereal brand compares to the recommended daily nutritional intake. 
+                       p("Begin by selecting one of the tabs at the top of the page. Each tab shows a different visualization of cereal nutritional variables. Under", span("Nutrition Breakdown", style = "color:darkblue") , "the user can see how the nutritional content of his or her favorite cereal brand compares to a baseline healthy cereal. 
                          
                         Under", span("Principal Components Analysis (PCA)", style = "color:darkblue"), "the user can select different cereal manufacturers and see how the nutritional variables of their cereal brands are related to one another. 
 
                         Under", span("Nutrients & Rating", style = "color:darkblue"), " , the user can select a nutrient to graph and see how that nutrient influences the overall cereal nutrition rating."),
                        h3("Data Source"),
-                       p("The dataset was found on Kaggle, and was compiled by James R. Eagan, as Associate Professor at Telecom ParisTech. The dataset was gathered and cleaned by Petra Isenberg, Pierre Dragicevic, and Yvonne Jansen. There are 16 variables in the dataset and 68 observations for cereal products. All variables were normalized to the unit of 1 cup of cereal. 
+                       p("The dataset was found on Kaggle, and was compiled by James R. Eagan, as Associate Professor at Telecom ParisTech. The dataset was gathered and cleaned by Petra Isenberg, Pierre Dragicevic, and Yvonne Jansen. There are 16 variables in the dataset and 74 observations for cereal products. All variables were normalized to the unit of 1 cup of cereal. 
 
                          Nutrition ratings were based off Consumer Reports. Larger values are associated with higher nutrient content.")
                        )      
