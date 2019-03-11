@@ -291,15 +291,21 @@ server <- function(input, output) {
      cereals_by_mfr <- cereals %>% 
        subset(mfr %in% input$mfr2)
      
+     relevant_nutrient_vector <- cereals_by_mfr %>% 
+        select(noquote(input$nutrient)) %>% 
+        unlist(use.names = FALSE)
+     
+     max_xaxis <- ifelse(length(relevant_nutrient_vector) == 0, 100, max(relevant_nutrient_vector, na.rm = TRUE) + 1)
+     
+     
      units <- c("","(g)","(g)","(mg)","(g)","(g)","(g)","(mg)","(%)")
      names(units) <- c("Calories","Protein","Fat","Sodium","Fiber","Carbohydrates","Sugars","Potassium","Vitamins")
-      
+    
      ggplot(cereals_by_mfr) +
        geom_point(aes_string(x = input$nutrient, y = "Rating", color = "mfr"), size = 3) +
        scale_color_brewer( palette = "Dark2") +
        theme_classic() +
        geom_text_repel(aes_string(label = "Name", x = input$nutrient, y = "Rating"), hjust = 0.2, vjust = 1) +
-       #geom_text(aes(label = name, x = calories, y =rating), hjust = 0.2, vjust = 1) +
        theme(panel.grid.major=element_blank()) +
        theme(plot.caption = element_text(hjust = 0.5, size = 17, face = "bold"), 
              axis.text = element_text(size = 16), 
@@ -312,10 +318,9 @@ server <- function(input, output) {
        labs(color='Manufacturer') +
        theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
        labs(caption = paste("\n",finalized_statements[input$nutrient])) +
-       ggtitle(paste("Rating vs.", input$nutrient)) 
-       #scale_x_continuous(expand = c(0, 0)) +
-     # scale_y_continuous(expand = c(0, 0)) 
-     
+       ggtitle(paste("Rating vs.", input$nutrient)) +
+       scale_x_continuous(expand = c(0, 0), limits = c(0,max_xaxis))
+
    }, width = 900, height = 700)
 }
 
